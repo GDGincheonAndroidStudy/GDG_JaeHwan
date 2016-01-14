@@ -1,15 +1,26 @@
 package gdg.incheon.gdg_jaehwan;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.widget.AbsListView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+
+    EditText keywordView;
+    ListView listView;
+    SwipeRefreshLayout refreshLayout;
+    MovieAdapter mAdapter;
+
+    boolean isUpdate = false;
+    boolean isLastItem = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,35 +29,112 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        keywordView = (EditText) findViewById(R.id.edit_keyword);
+        refreshLayout = (SwipeRefreshLayout)findViewById(R.id.refresh);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "hI", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onRefresh() {
+                String keyword = mAdapter.getKeyword();
+                searchMovie(keyword);
+            }
+        });
+        listView = (ListView)findViewById(R.id.listView);
+
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (isLastItem && scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                    getMoreItem();
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (totalItemCount > 0 && (firstVisibleItem + visibleItemCount >= totalItemCount - 1)) {
+                    isLastItem = true;
+                } else {
+                    isLastItem = false;
+                }
+            }
+        });
+
+        mAdapter = new MovieAdapter();
+        listView.setAdapter(mAdapter);
+        keywordView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchMovie(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void getMoreItem() {
+        if (!isUpdate) {
+            String keyword = mAdapter.getKeyword();
+            int startIndex = mAdapter.getStartIndex();
+            if (!TextUtils.isEmpty(keyword) && startIndex != -1) {
+                isUpdate = true;
+                NetworkManager.getInstance().getMovies(MainActivity.this, keyword, startIndex, 10, new NetworkManager.OnResultListener<NaverMovies>() {
+                    @Override
+                    public void onSuccess(NaverMovies result) {
+                        for (MovieItem item : result.item) {
+                            mAdapter.add(item);
+                        }
+                        isUpdate = false;
+                    }
+
+                    @Override
+                    public void onFail(int code) {
+                        isUpdate = false;
+                    }
+                });
+            }
+        }
+    }
+    private void searchMovie(final String keyword) {
+        if (!TextUtils.isEmpty(keyword)) {
+            NetworkManager.getInstance().getMovies(this, keyword, 1, 10, new NetworkManager.OnResultListener<NaverMovies>() {
+                @Override
+                public void onSuccess(NaverMovies result) {
+                    mAdapter.setKeyword(keyword);
+                    mAdapter.setTotalCount(result.total);
+                    mAdapter.clear();
+                    for (MovieItem item : result.item) {
+                        mAdapter.add(item);
+                    }
+                    refreshLayout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshLayout.setRefreshing(false);
+                        }
+                    }, 2000);
+
+                }
+
+                @Override
+                public void onFail(int code) {
+                    Toast.makeText(MainActivity.this, "error : " + code, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            mAdapter.clear();
+            mAdapter.setKeyword(keyword);
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    protected void onDestroy() {
+        super.onDestroy();
+        NetworkManager.getInstance().cancelAll(this);
     }
 }
