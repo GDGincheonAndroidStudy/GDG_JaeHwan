@@ -1,4 +1,6 @@
 package gdg.incheon.gdg_jaehwan;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -6,7 +8,9 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -54,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     isLastItem = false;
                 }
+            }
+        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MovieItem mItem = (MovieItem)listView.getItemAtPosition(position);
+                startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(mItem.link)));
             }
         });
 

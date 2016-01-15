@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GDG_JaeHwan.iml" filepath="$PROJECT_DIR$/GDG_JaeHwan.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asynchttp/asynchttp.iml" filepath="$PROJECT_DIR$/asynchttp/asynchttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/imageloader/imageloader.iml" filepath="$PROJECT_DIR$/imageloader/imageloader.iml" />
     </modules>
   </component>
 </project>
