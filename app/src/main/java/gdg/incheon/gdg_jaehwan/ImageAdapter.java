@@ -7,9 +7,9 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieAdapter extends BaseAdapter {
+public class ImageAdapter extends BaseAdapter {
 
-    List<MovieItem> items = new ArrayList<MovieItem>();
+    List<ImageItem> items = new ArrayList<ImageItem>();
 
     String keyword;
     int totalCount;
@@ -35,7 +35,7 @@ public class MovieAdapter extends BaseAdapter {
         return -1;
     }
 
-    public void add(MovieItem item) {
+    public void add(ImageItem item) {
         items.add(item);
         notifyDataSetChanged();
     }
@@ -62,11 +62,11 @@ public class MovieAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        MovieItemView view;
+        ImageItemView view;
         if (convertView == null) {
-            view = new MovieItemView(parent.getContext());
+            view = new ImageItemView(parent.getContext());
         } else {
-            view = (MovieItemView)convertView;
+            view = (ImageItemView)convertView;
         }
         view.setMovieItem(items.get(position));
         return view;

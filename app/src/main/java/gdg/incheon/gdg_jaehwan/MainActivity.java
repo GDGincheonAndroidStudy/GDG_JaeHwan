@@ -1,4 +1,5 @@
 package gdg.incheon.gdg_jaehwan;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,19 +9,24 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
     EditText keywordView;
     ListView listView;
     SwipeRefreshLayout refreshLayout;
-    MovieAdapter mAdapter;
+    ImageAdapter mAdapter;
 
     boolean isUpdate = false;
     boolean isLastItem = false;
@@ -33,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         keywordView = (EditText) findViewById(R.id.edit_keyword);
-        refreshLayout = (SwipeRefreshLayout)findViewById(R.id.refresh);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -41,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 searchMovie(keyword);
             }
         });
-        listView = (ListView)findViewById(R.id.listView);
+        listView = (ListView) findViewById(R.id.listView);
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -64,12 +70,12 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MovieItem mItem = (MovieItem)listView.getItemAtPosition(position);
-                startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(mItem.link)));
+                ImageItem mItem = (ImageItem) listView.getItemAtPosition(position);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mItem.link)));
             }
         });
 
-        mAdapter = new MovieAdapter();
+        mAdapter = new ImageAdapter();
         listView.setAdapter(mAdapter);
         keywordView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -95,33 +101,57 @@ public class MainActivity extends AppCompatActivity {
             int startIndex = mAdapter.getStartIndex();
             if (!TextUtils.isEmpty(keyword) && startIndex != -1) {
                 isUpdate = true;
-                NetworkManager.getInstance().getMovies(MainActivity.this, keyword, startIndex, 10, new NetworkManager.OnResultListener<NaverMovies>() {
+
+                ApiClient apiClient = NetworkManager.getIntance().getRetrofit(ApiClient.class);
+
+                Call<SearchResult> call = apiClient.searchMovieList(Define.KEY, keyword, 10, startIndex, Define.FORMAT);
+
+                call.enqueue(new Callback<SearchResult>() {
                     @Override
-                    public void onSuccess(NaverMovies result) {
-                        for (MovieItem item : result.item) {
+                    public void onResponse(Response<SearchResult> response, Retrofit retrofit) {
+                        Log.d("bookTest", "network success");
+
+                        for (ImageItem item : response.body().channel.item) {
                             mAdapter.add(item);
                         }
                         isUpdate = false;
+
                     }
 
                     @Override
-                    public void onFail(int code) {
+                    public void onFailure(Throwable t) {
+                        Log.e("imageTest", "network failure");
+                        Log.e("imageTest", t.getMessage());
+                        Log.e("imageTest", t.toString());
+                        t.printStackTrace();
                         isUpdate = false;
                     }
                 });
+
             }
         }
     }
+
     private void searchMovie(final String keyword) {
         if (!TextUtils.isEmpty(keyword)) {
-            NetworkManager.getInstance().getMovies(this, keyword, 1, 10, new NetworkManager.OnResultListener<NaverMovies>() {
+
+            ApiClient apiClient = NetworkManager.getIntance().getRetrofit(ApiClient.class);
+
+            Call<SearchResult> call = apiClient.searchMovieList(Define.KEY, keyword, 10, 1, Define.FORMAT);
+
+            call.enqueue(new Callback<SearchResult>() {
                 @Override
-                public void onSuccess(NaverMovies result) {
+                public void onResponse(Response<SearchResult> response, Retrofit retrofit) {
+                    Log.d("imageTest", "network success");
+                    Log.d("message",response.message());
+
                     mAdapter.setKeyword(keyword);
-                    mAdapter.setTotalCount(result.total);
+                    mAdapter.setTotalCount(Integer.parseInt(response.body().channel.totalCount));
+                    Log.d("카운트 : ","카운트"+response.body().channel.totalCount);
                     mAdapter.clear();
-                    for (MovieItem item : result.item) {
+                    for (ImageItem item : response.body().channel.item) {
                         mAdapter.add(item);
+                        Log.d("아이템이름 : ",item.title);
                     }
                     refreshLayout.postDelayed(new Runnable() {
                         @Override
@@ -129,23 +159,21 @@ public class MainActivity extends AppCompatActivity {
                             refreshLayout.setRefreshing(false);
                         }
                     }, 2000);
-
+                    Log.d("응답끝","end");
                 }
 
                 @Override
-                public void onFail(int code) {
-                    Toast.makeText(MainActivity.this, "error : " + code, Toast.LENGTH_SHORT).show();
+                public void onFailure(Throwable t) {
+                    Log.e("imageTest", "network failure");
+                    Log.e("imageTest", t.getMessage());
+                    Log.e("imageTest", t.toString());
+                    t.printStackTrace();
+                    isUpdate = false;
                 }
             });
         } else {
             mAdapter.clear();
             mAdapter.setKeyword(keyword);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        NetworkManager.getInstance().cancelAll(this);
     }
 }
