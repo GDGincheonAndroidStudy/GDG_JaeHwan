@@ -1,70 +1,54 @@
 package gdg.incheon.gdg_jaehwan;
 
-import android.content.res.Resources;
-import android.support.test.InstrumentationRegistry;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.support.test.espresso.action.ViewActions;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.LargeTest;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import gdg.incheon.gdg_jaehwan.ui.MainActivity;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static android.support.test.espresso.action.ViewActions.typeText;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
-@RunWith(MockitoJUnitRunner.class)
-@SmallTest
-public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity>{
 
-    private MainActivity activity;
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class MainActivityTest {
 
-    @Mock
-    private Resources mockResources;
+    public static final String STRING_TO_BE_TYPED = "chicken";
 
-    public MainActivityTest() {
-        super(MainActivity.class);
-    }
+    private static final String LAST_ITEM_ID = "item: 15";
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-        activity = getActivity();
-        MockitoAnnotations.initMocks(mockResources);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
+    @Rule
+    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(
+            MainActivity.class);
 
     @Test
-    public void loadStringResource() throws Exception {
-        String appName = activity.getResources().getString(R.string.app_name);
-        assertThat(appName, is("GDG_JaeHwan"));
-    }
+    public void test() {
+        //텍스트 타이핑
+        onView(withId(R.id.edit_keyword))
+                .perform(typeText(STRING_TO_BE_TYPED), closeSoftKeyboard());
 
-    @Test
-    public void loadMockStringResource() throws Exception {
-        when(mockResources.getString(R.string.app_name)).thenReturn("GDG_JaeHwan");
-        String appName = mockResources.getString(R.string.app_name);
-        assertThat(appName, is("GDG_JaeHwan"));
-    }
+        //텍스트 변경 확인
+        onView(withId(R.id.edit_keyword)).check(matches(withText(STRING_TO_BE_TYPED)));
 
-    @Test
-    public void testOnCreate() throws Exception {
+        //검색 클릭
+        onView(withId(R.id.btn_search)).perform(ViewActions.click());
 
-    }
-
-    @Test
-    public void testOnDestroy() throws Exception {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
+
 }

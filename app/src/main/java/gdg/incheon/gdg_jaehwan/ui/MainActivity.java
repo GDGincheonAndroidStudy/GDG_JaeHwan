@@ -6,11 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.EditText;
 
 import gdg.incheon.gdg_jaehwan.R;
@@ -28,6 +28,7 @@ import retrofit.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
+    Button btnSearch;
     EditText keywordView;
     RecyclerView recyclerView;
     SwipeRefreshLayout refreshLayout;
@@ -55,15 +56,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView =(RecyclerView)findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new ImageDecoration(20));
-
-
-//        recyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                ImageItem mItem = (ImageItem) recyclerView.getItemAtPosition(position);
-//                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mItem.link)));
-//            }
-//        });
 
         mAdapter = new ImageAdapter(this);
         recyclerView.setAdapter(mAdapter);
@@ -93,20 +85,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        keywordView.addTextChangedListener(new TextWatcher() {
+        btnSearch = (Button)findViewById(R.id.btn_search);
+        btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchMovie(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
+            public void onClick(View v) {
+                searchMovie(keywordView.getText().toString());
             }
         });
     }
