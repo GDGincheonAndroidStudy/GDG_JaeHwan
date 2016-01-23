@@ -25,8 +25,6 @@ public class MainActivityTest {
 
     public static final String STRING_TO_BE_TYPED = "chicken";
 
-    private static final String LAST_ITEM_ID = "item: 15";
-
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(
             MainActivity.class);
