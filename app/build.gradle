@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
-    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "gdg.incheon.gdg_jaehwan"
@@ -37,10 +36,6 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.4.1'
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
     androidTestCompile 'org.mockito:mockito-core:1.9.5'
-
-
-
-
     androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
     androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
     compile 'com.android.support:recyclerview-v7:23.1.1'
