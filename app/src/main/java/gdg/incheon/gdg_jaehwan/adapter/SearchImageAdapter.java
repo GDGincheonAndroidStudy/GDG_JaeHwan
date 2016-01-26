@@ -14,37 +14,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gdg.incheon.gdg_jaehwan.R;
-import gdg.incheon.gdg_jaehwan.data.ImageItem;
-import gdg.incheon.gdg_jaehwan.viewholder.ImageViewHolder;
+import gdg.incheon.gdg_jaehwan.data.SearchItem;
+import gdg.incheon.gdg_jaehwan.data.StoreItem;
+import gdg.incheon.gdg_jaehwan.viewholder.SearchImageViewHolder;
+import io.realm.Realm;
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
+public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageViewHolder> {
 
-    List<ImageItem> items = new ArrayList<ImageItem>();
+    List<SearchItem> items = new ArrayList<SearchItem>();
 
     String keyword;
     int totalCount;
     Context mContext;
 
-    public ImageAdapter(Context context) {
+    public SearchImageAdapter(Context context) {
         mContext=context;
     }
 
     @Override
-    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SearchImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View v = LayoutInflater.from(mContext).inflate(R.layout.view_image_item, parent, false);
-        return new ImageViewHolder(v,mContext);
+        return new SearchImageViewHolder(v,mContext);
     }
 
     @Override
-    public void onBindViewHolder(ImageViewHolder holder, int position) {
+    public void onBindViewHolder(SearchImageViewHolder holder, int position) {
         holder.setImageItem(items.get(position));
-        holder.setOnItemClickListener(new ImageViewHolder.OnItemClickListener() {
+        holder.setOnItemClickListener(new SearchImageViewHolder.OnItemClickListener() {
             @Override
-            public void onImageClick(View v, int position) {
+            public void onLinkClick(View v, int position) {
                 Toast.makeText(mContext,"제목:"+ Html.fromHtml(Html.fromHtml(items.get(position).title).toString()).toString(),Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(items.get(position).link));
                 mContext.startActivity(intent);
+            }
+
+            @Override
+            public void onImageClick(View v, int position) {
+
+                Realm realm = Realm.getInstance(mContext);
+                realm.beginTransaction();
+
+                StoreItem storeItem = realm.createObject(StoreItem.class);
+                storeItem.setKeyword(keyword);
+                storeItem.setImageUrl(items.get(position).image);
+
+                realm.commitTransaction();
+                Toast.makeText(mContext,"저장",Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -75,7 +91,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
         return -1;
     }
 
-    public void add(ImageItem item) {
+    public void add(SearchItem item) {
         items.add(item);
         notifyDataSetChanged();
     }

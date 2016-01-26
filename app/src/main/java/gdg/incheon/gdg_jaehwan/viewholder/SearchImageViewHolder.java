@@ -10,19 +10,19 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import gdg.incheon.gdg_jaehwan.R;
-import gdg.incheon.gdg_jaehwan.data.ImageItem;
+import gdg.incheon.gdg_jaehwan.data.SearchItem;
 
 /**
  * Created by 01071724654 on 2016-01-19.
  */
-public class ImageViewHolder extends RecyclerView.ViewHolder{
+public class SearchImageViewHolder extends RecyclerView.ViewHolder{
 
     ImageView iconView;
     TextView titleView, linkView;
-    ImageItem mItem;
+    SearchItem mItem;
     Context mContext;
 
-    public ImageViewHolder(View itemView, Context context) {
+    public SearchImageViewHolder(View itemView, Context context) {
         super(itemView);
         mContext=context;
         iconView = (ImageView)itemView.findViewById(R.id.image_icon);
@@ -30,14 +30,14 @@ public class ImageViewHolder extends RecyclerView.ViewHolder{
         linkView = (TextView)itemView.findViewById(R.id.text_link);
     }
 
-    public void setImageItem(ImageItem item) {
+    public void setImageItem(SearchItem item) {
         titleView.setText(Html.fromHtml(Html.fromHtml(item.title).toString()));
         linkView.setText(item.link);
         linkView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mListener!=null) {
-                    mListener.onImageClick(v,getAdapterPosition());
+                if (mListener != null) {
+                    mListener.onLinkClick(v, getAdapterPosition());
                 }
             }
         });
@@ -45,11 +45,20 @@ public class ImageViewHolder extends RecyclerView.ViewHolder{
                 .load(item.image)
                 .crossFade()
                 .into(iconView);
+        iconView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mListener!=null) {
+                    mListener.onImageClick(v, getAdapterPosition());
+                }
+            }
+        });
     }
 
 
 
     public interface OnItemClickListener {
+        public void onLinkClick(View v, int position);
         public void onImageClick(View v, int position);
     }
     OnItemClickListener mListener;

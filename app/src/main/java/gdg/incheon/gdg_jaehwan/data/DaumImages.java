@@ -8,5 +8,5 @@ import java.util.List;
  */
 public class DaumImages implements Serializable {
     public String totalCount;
-    public List<ImageItem> item;
+    public List<SearchItem> item;
 }
