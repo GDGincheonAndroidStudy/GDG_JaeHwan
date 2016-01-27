@@ -40,21 +40,6 @@ public class SearchFragment extends Fragment {
     boolean isUpdate = false;
     boolean isLastItem = false;
 
-    public static SearchFragment newInstance() {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        //args.putInt(TAB_POSITION, tabPosition);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

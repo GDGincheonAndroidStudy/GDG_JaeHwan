@@ -20,16 +20,8 @@ import io.realm.RealmResults;
 public class StoreFragment extends Fragment {
 
     RecyclerView recyclerView;
-    StoreImageAdapter mAdapter;
+    static StoreImageAdapter mAdapter;
     Realm realm;
-
-
-    public static StoreFragment newInstance() {
-        StoreFragment fragment = new StoreFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,26 +29,28 @@ public class StoreFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_store, container, false);
 
         recyclerView = (RecyclerView)v.findViewById(R.id.view_store);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerView.addItemDecoration(new ImageDecoration(20));
         mAdapter = new StoreImageAdapter(getContext());
         recyclerView.setAdapter(mAdapter);
 
-        getRealmData();
-
         return v;
     }
-
 
     public void getRealmData() {
         Log.d("realm!", "realm!");
 
         RealmResults<StoreItem> result = realm.where(StoreItem.class).findAll();
-
         mAdapter.clear();
         for(int i=0; i<result.size(); i++) {
             mAdapter.add(result.get(i));
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getRealmData();
     }
 
     @Override
@@ -70,4 +64,5 @@ public class StoreFragment extends Fragment {
         super.onStop();
         realm.close();
     }
+
 }
