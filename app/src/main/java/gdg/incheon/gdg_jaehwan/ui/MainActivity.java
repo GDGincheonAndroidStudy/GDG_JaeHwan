@@ -3,6 +3,7 @@ package gdg.incheon.gdg_jaehwan.ui;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.widget.TabHost;
 
 import gdg.incheon.gdg_jaehwan.R;
@@ -18,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (android.support.v7.widget.Toolbar) this.findViewById(R.id.toolbar);
+        this.setSupportActionBar(toolbar);
 
         tabHost = (TabHost)findViewById(R.id.tabHost);
         pager = (ViewPager)findViewById(R.id.pager);

@@ -1,6 +1,7 @@
 package gdg.incheon.gdg_jaehwan.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,17 +53,37 @@ public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageViewHold
             }
 
             @Override
-            public void onImageClick(View v, int position) {
+            public void onImageClick(View v, final int position) {
 
-                Realm realm = Realm.getInstance(mContext);
-                realm.beginTransaction();
 
-                StoreItem storeItem = realm.createObject(StoreItem.class);
-                storeItem.setKeyword(keyword);
-                storeItem.setImageUrl(items.get(position).image);
+                new AlertDialogWrapper.Builder(mContext)
+                        .setTitle("이미지 저장")
+                        .setMessage("저장하시겠습니까?")
+                        .setPositiveButton("저장", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                realm.commitTransaction();
-                Toast.makeText(mContext,"저장",Toast.LENGTH_SHORT).show();
+
+                                Realm realm = Realm.getInstance(mContext);
+                                realm.beginTransaction();
+
+                                StoreItem storeItem = realm.createObject(StoreItem.class);
+                                storeItem.setKeyword(keyword);
+                                storeItem.setImageUrl(items.get(position).image);
+
+                                realm.commitTransaction();
+                                Toast.makeText(mContext,"저장",Toast.LENGTH_SHORT).show();
+
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+
             }
         });
     }
