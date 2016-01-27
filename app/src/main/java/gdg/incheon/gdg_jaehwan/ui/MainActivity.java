@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
         mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
 
-        mAdapter.addTab(tabHost.newTabSpec("tab1").setIndicator("TAB1"), SearchFragment.class, null);
-        mAdapter.addTab(tabHost.newTabSpec("tab2").setIndicator("TAB2"), StoreFragment.class, null);
+        mAdapter.addTab(tabHost.newTabSpec("TAB1").setIndicator("이미지검색"), SearchFragment.class, null);
+        mAdapter.addTab(tabHost.newTabSpec("TAB2").setIndicator("저장데이터"), StoreFragment.class, null);
+        mAdapter.addTab(tabHost.newTabSpec("TAB3").setIndicator("데이터검색"), RealmSearchFragment.class, null);
     }
 }

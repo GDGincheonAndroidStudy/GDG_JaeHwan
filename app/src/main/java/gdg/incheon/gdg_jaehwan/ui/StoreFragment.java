@@ -20,7 +20,7 @@ import io.realm.RealmResults;
 public class StoreFragment extends Fragment {
 
     RecyclerView recyclerView;
-    static StoreImageAdapter mAdapter;
+    StoreImageAdapter mAdapter;
     Realm realm;
 
     @Override
