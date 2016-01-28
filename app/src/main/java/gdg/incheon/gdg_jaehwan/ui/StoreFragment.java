@@ -23,6 +23,17 @@ public class StoreFragment extends Fragment {
     StoreImageAdapter mAdapter;
     Realm realm;
 
+    private static StoreFragment fragment;
+
+    public static StoreFragment newInstance() {
+        if(fragment==null) {
+            fragment = new StoreFragment();
+            Bundle args = new Bundle();
+            fragment.setArguments(args);
+        }
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

@@ -18,6 +18,14 @@ public class RealmSearchFragment extends Fragment {
     RealmItemAdpater adpater;
     Realm realm;
 
+
+    public static RealmSearchFragment newInstance() {
+        RealmSearchFragment fragment = new RealmSearchFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

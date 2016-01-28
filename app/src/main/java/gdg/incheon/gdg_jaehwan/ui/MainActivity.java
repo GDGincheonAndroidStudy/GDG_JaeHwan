@@ -1,36 +1,53 @@
 package gdg.incheon.gdg_jaehwan.ui;
-
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.widget.TabHost;
 
 import gdg.incheon.gdg_jaehwan.R;
-import gdg.incheon.gdg_jaehwan.adapter.TabsAdapter;
+import gdg.incheon.gdg_jaehwan.adapter.ImagePagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    ViewPager pager;
-    TabsAdapter mAdapter;
-    TabHost tabHost;
+
+    TabLayout tabLayout;
+    ViewPager viewPager;
+    ImagePagerAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        Toolbar toolbar = (android.support.v7.widget.Toolbar) this.findViewById(R.id.toolbar);
-        this.setSupportActionBar(toolbar);
 
-        tabHost = (TabHost)findViewById(R.id.tabHost);
-        pager = (ViewPager)findViewById(R.id.pager);
-        tabHost.setup();
+        tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        adapter = new ImagePagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
 
-        mAdapter = new TabsAdapter(this, getSupportFragmentManager(), tabHost, pager);
+        tabLayout.setupWithViewPager(viewPager);
 
-        mAdapter.addTab(tabHost.newTabSpec("TAB1").setIndicator("이미지검색"), SearchFragment.class, null);
-        mAdapter.addTab(tabHost.newTabSpec("TAB2").setIndicator("저장데이터"), StoreFragment.class, null);
-        mAdapter.addTab(tabHost.newTabSpec("TAB3").setIndicator("데이터검색"), RealmSearchFragment.class, null);
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+                adapter.getItem(tab.getPosition()).onResume();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
     }
 }
