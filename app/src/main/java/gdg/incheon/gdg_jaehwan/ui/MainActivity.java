@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        tabLayout = (TabLayout) findViewById(R.id.tablayout);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         adapter = new ImagePagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(adapter);
