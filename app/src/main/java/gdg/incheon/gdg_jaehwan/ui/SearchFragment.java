@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.EditText;
 
+import com.jakewharton.rxbinding.view.RxView;
+
 import gdg.incheon.gdg_jaehwan.R;
 import gdg.incheon.gdg_jaehwan.adapter.SearchImageAdapter;
 import gdg.incheon.gdg_jaehwan.data.Define;
@@ -26,6 +28,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+import rx.functions.Action1;
 
 
 public class SearchFragment extends Fragment {
@@ -104,19 +107,37 @@ public class SearchFragment extends Fragment {
         });
 
         btnSearch = (FloatingActionButton) v.findViewById(R.id.btn_search);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                if (TextUtils.isEmpty(keywordView.getText().toString())) {
-                    Snackbar snackbar = Snackbar
-                            .make(v, "검색어를 입력해 주세요", Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                } else {
-                    searchMovie(keywordView.getText().toString());
-                }
-            }
-        });
+
+        RxView
+                .clicks(v.findViewById(R.id.btn_search))
+                .subscribe(new Action1<Void>() {
+                    @Override
+                    public void call(Void aVoid) {
+                        if (TextUtils.isEmpty(keywordView.getText().toString())) {
+                            Snackbar snackbar = Snackbar
+                                    .make(getView(), "검색어를 입력해 주세요", Snackbar.LENGTH_SHORT);
+                            snackbar.show();
+                        } else {
+                            searchMovie(keywordView.getText().toString());
+                        }
+                    }
+                });
+
+
+//        btnSearch.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                if (TextUtils.isEmpty(keywordView.getText().toString())) {
+//                    Snackbar snackbar = Snackbar
+//                            .make(v, "검색어를 입력해 주세요", Snackbar.LENGTH_SHORT);
+//                    snackbar.show();
+//                } else {
+//                    searchMovie(keywordView.getText().toString());
+//                }
+//            }
+//        });
 
         return v;
     }
