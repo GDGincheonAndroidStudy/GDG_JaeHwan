@@ -24,11 +24,9 @@ import gdg.incheon.gdg_jaehwan.data.SearchItem;
 import gdg.incheon.gdg_jaehwan.data.SearchResult;
 import gdg.incheon.gdg_jaehwan.network.ApiClient;
 import gdg.incheon.gdg_jaehwan.network.NetworkManager;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
-import retrofit.Retrofit;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 
 public class SearchFragment extends Fragment {
@@ -63,7 +61,7 @@ public class SearchFragment extends Fragment {
             public void onRefresh() {
                 String keyword = mAdapter.getKeyword();
                 if(!TextUtils.isEmpty(keyword)) {
-                    searchMovie(keyword);
+                    searchImage(keyword);
                 }
             }
         });
@@ -119,7 +117,7 @@ public class SearchFragment extends Fragment {
                                     .make(getView(), "검색어를 입력해 주세요", Snackbar.LENGTH_SHORT);
                             snackbar.show();
                         } else {
-                            searchMovie(keywordView.getText().toString());
+                            searchImage(keywordView.getText().toString());
                         }
                     }
                 });
@@ -134,7 +132,7 @@ public class SearchFragment extends Fragment {
 //                            .make(v, "검색어를 입력해 주세요", Snackbar.LENGTH_SHORT);
 //                    snackbar.show();
 //                } else {
-//                    searchMovie(keywordView.getText().toString());
+//                    searchImage(keywordView.getText().toString());
 //                }
 //            }
 //        });
@@ -151,7 +149,18 @@ public class SearchFragment extends Fragment {
 
                 ApiClient apiClient = NetworkManager.getIntance().getRetrofit(ApiClient.class);
 
-                Call<SearchResult> call = apiClient.searchImageList(Define.KEY, keyword, 10, startIndex, Define.FORMAT);
+                rx.Observable<SearchResult> rx = apiClient.searchImageListRx(Define.KEY, keyword, 10, startIndex, Define.FORMAT);
+                rx.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(body -> {
+                            for (SearchItem item : body.channel.item) {
+                                mAdapter.add(item);
+                            }
+                            isUpdate = false;
+
+                        });
+
+       /*         Call<SearchResult> call = apiClient.searchImageList(Define.KEY, keyword, 10, startIndex, Define.FORMAT);
 
                 call.enqueue(new Callback<SearchResult>() {
                     @Override
@@ -173,18 +182,41 @@ public class SearchFragment extends Fragment {
                         t.printStackTrace();
                         isUpdate = false;
                     }
-                });
+                });*/
 
             }
         }
     }
 
-    private void searchMovie(final String keyword) {
+    private void searchImage(final String keyword) {
         if (!TextUtils.isEmpty(keyword)) {
 
             ApiClient apiClient = NetworkManager.getIntance().getRetrofit(ApiClient.class);
 
-            Call<SearchResult> call = apiClient.searchImageList(Define.KEY, keyword, 10, 1, Define.FORMAT);
+
+            rx.Observable<SearchResult> rx = apiClient.searchImageListRx(Define.KEY, keyword, 10, 1, Define.FORMAT);
+            rx.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(body -> {
+
+                        mAdapter.setKeyword(keyword);
+                        mAdapter.setTotalCount(Integer.parseInt(body.channel.totalCount));
+                        Log.d("카운트 : ", "카운트" + body.channel.totalCount);
+                        mAdapter.clear();
+                        for (SearchItem item : body.channel.item) {
+                            mAdapter.add(item);
+                            Log.d("아이템이름 : ", item.title);
+                        }
+                        refreshLayout.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshLayout.setRefreshing(false);
+                            }
+                        }, 2000);
+
+                    });
+
+/*            Call<SearchResult> call = apiClient.searchImageList(Define.KEY, keyword, 10, 1, Define.FORMAT);
 
             call.enqueue(new Callback<SearchResult>() {
                 @Override
@@ -217,7 +249,9 @@ public class SearchFragment extends Fragment {
                     t.printStackTrace();
                     isUpdate = false;
                 }
-            });
+            });*/
+
+
         } else {
             mAdapter.clear();
             mAdapter.setKeyword(keyword);
